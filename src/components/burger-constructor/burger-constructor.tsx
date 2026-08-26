@@ -17,7 +17,7 @@ export const BurgerConstructor: FC = () => {
     ingredients
   };
   const orderRequest = useAppSelector((s) => s.orders.isLoading);
-  const orderModalData = useAppSelector((s) => s.orders.currentOrder ?? null);
+  const orderModalData = useAppSelector((s) => s.orders.createdOrder ?? null);
 
   const price = useMemo(
     () =>

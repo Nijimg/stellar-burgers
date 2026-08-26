@@ -10,7 +10,7 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
     const dispatch = useAppDispatch();
     const ref = useRef<HTMLDivElement>(null);
     const [{}, drag] = useDrag({
-      type: 'ingredient',
+      type: 'constructor-ingredient',
       item: { id: ingredient.id, index },
       collect: (monitor) => ({
         isDragging: monitor.isDragging()
