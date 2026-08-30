@@ -186,47 +186,6 @@ test.beforeEach(async ({ page }) => {
             path: '/'
         }
         ]);
-        await page.route('**/api/auth/user', async (route) => {
-        await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-            success: true,
-            user: {
-                email: 'test@test.com',
-                name: 'Test User'
-            }
-            })
-        });
-        });
-
-        await page.route('**/api/orders', async (route) => {
-        if (route.request().method() === 'POST') {
-            await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-                success: true,
-                name: 'Тестовый заказ',
-                order: {
-                _id: 'test-order-id',
-                status: 'done',
-                name: 'Тестовый заказ',
-                owner: {
-                    name: 'Test User',
-                    email: 'test@test.com',
-                    createdAt: '2026-08-29T00:00:00.000Z',
-                    updatedAt: '2026-08-29T00:00:00.000Z'
-                },
-                createdAt: '2026-08-29T00:00:00.000Z',
-                updatedAt: '2026-08-29T00:00:00.000Z',
-                number: 12345,
-                price: 250
-                }
-            })
-            });
-        }
-});
 
         await page.goto('/');
 
