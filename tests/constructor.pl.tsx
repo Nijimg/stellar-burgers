@@ -30,8 +30,8 @@ import { test, expect } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
     await page.routeFromHAR('./tests/hars/constructor.har', {
-        url: '**/ingredients',
-        notFound: 'abort'
+    url: '**/api/**',
+    notFound: 'abort'
     });
 });
     test.describe('Конструктор бургера', () => {
@@ -93,8 +93,9 @@ test.beforeEach(async ({ page }) => {
         page.getByRole('heading', { name: 'Ингредиенты' })
     ).toBeVisible();
 
-    await expect(page.getByRole('heading', { name: ingredient.name })).toBeVisible();
-});
+    const modal = page.getByTestId('modal');
+
+    await expect(modal.getByRole('heading', { name: ingredient.name })).toBeVisible();});
     
 
     test('модалка ингредиента закрывается по крестику', async ({ page }) => {
@@ -172,41 +173,7 @@ test.beforeEach(async ({ page }) => {
     test(
         'авторизованный пользователь может оформить заказ',
         async ({ page }) => {
-        await page.route('**/auth/user', async (route) => {
-            await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-                success: true,
-                user: {
-                email: 'test@test.ru',
-                name: 'Тестовый пользователь'
-                }
-            })
-            });
-        });
-
-        await page.route('**/orders', async (route) => {
-            if (route.request().method() === 'POST') {
-            await route.fulfill({
-                status: 200,
-                contentType: 'application/json',
-                body: JSON.stringify({
-                success: true,
-                name: 'Тестовый бургер',
-                order: {
-                    _id: 'order-1',
-                    number: 12345,
-                    status: 'created',
-                    name: 'Тестовый бургер',
-                    createdAt: '2026-08-27T00:00:00.000Z',
-                    updatedAt: '2026-08-27T00:00:00.000Z',
-                    ingredients: ['bun-1', 'ingredient-1', 'bun-1']
-                }
-                })
-            });
-            }
-        });
+        
 
         await page.addInitScript(() => {
             localStorage.setItem('refreshToken', 'test-refresh-token');
@@ -219,6 +186,47 @@ test.beforeEach(async ({ page }) => {
             path: '/'
         }
         ]);
+        await page.route('**/api/auth/user', async (route) => {
+        await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+            success: true,
+            user: {
+                email: 'test@test.com',
+                name: 'Test User'
+            }
+            })
+        });
+        });
+
+        await page.route('**/api/orders', async (route) => {
+        if (route.request().method() === 'POST') {
+            await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({
+                success: true,
+                name: 'Тестовый заказ',
+                order: {
+                _id: 'test-order-id',
+                status: 'done',
+                name: 'Тестовый заказ',
+                owner: {
+                    name: 'Test User',
+                    email: 'test@test.com',
+                    createdAt: '2026-08-29T00:00:00.000Z',
+                    updatedAt: '2026-08-29T00:00:00.000Z'
+                },
+                createdAt: '2026-08-29T00:00:00.000Z',
+                updatedAt: '2026-08-29T00:00:00.000Z',
+                number: 12345,
+                price: 250
+                }
+            })
+            });
+        }
+});
 
         await page.goto('/');
 
